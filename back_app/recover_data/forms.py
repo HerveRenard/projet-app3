@@ -121,5 +121,3 @@ class ConnexionCodeForm(forms.Form):
         max_length=6,  # Longueur maximale d'un code
         required=True,  # Le code est obligatoire
     )
-
-

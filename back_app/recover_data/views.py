@@ -309,12 +309,3 @@ def list_donnees_boeuf(request):
         return Response(serializer.data, status=200)
     else:
         return Response({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
-
-
-@api_view(['POST'])
-def creer_boeuf(request):
-    serializer = BoeufSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "Bœuf enregistré avec succès !"}, status=201)
-    return Response(serializer.errors, status=400)

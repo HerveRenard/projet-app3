@@ -29,7 +29,7 @@ class Boeuf(models.Model):
     date_naissance = models.DateField(verbose_name="Date de naissance")
     sexe = models.CharField(max_length=1, choices=SEXE_CHOICES)
     eleveur = models.ForeignKey(Eleveur, on_delete=models.CASCADE, related_name='boeufs')
-                
+
     class Meta:
         verbose_name = "Bœuf"
         verbose_name_plural = "Bœufs"
@@ -39,7 +39,7 @@ class Boeuf(models.Model):
 
 class DonneeBoeuf(models.Model):
     boeuf = models.ForeignKey(Boeuf, on_delete=models.CASCADE, related_name='donnees')
-    timestamp = models.DateTimeField(auto_now_add=True) #temps de collecte des données
+    timestamp = models.DateTimeField(auto_now_add=True)
     humidite = models.DecimalField(
         max_digits=5, 
         decimal_places=2,
