@@ -13,4 +13,9 @@ urlpatterns = [
     path('api/list_eleveur', views.list_eleveur, name="list_eleveur"),
     path('api/list_boeuf', views.list_boeuf, name="list_boeuf"),
     path('api/list_donnees_boeuf', views.list_donnees_boeuf, name="list_donnees_boeuf"),
+    path('api/creer_boeuf', views.creer_boeuf, name="creer_boeuf"),
+    path('api/detail_eleveur', views.detail_eleveur, name="detail_eleveur"),
+    path('api/detail_boeuf', views.detail_eleveur, name="detail_boeuf"),
+    path('api/detail_admin', views.detail_admin, name="detail_admin"),
+
 ]

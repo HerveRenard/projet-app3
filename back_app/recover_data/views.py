@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 import random
 import string
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 
 
 #inscription eleveur
@@ -40,7 +41,6 @@ def inscription(request):
     return Response({'message': 'Inscription réussie !'}, status=status.HTTP_201_CREATED)
 
 #connexion eleveur
-
 @api_view(['POST'])
 def connexion_api(request):
     if request.method == 'POST':
@@ -52,6 +52,7 @@ def connexion_api(request):
 
             # Comparer directement les mots de passe
             if eleveur.mot_de_passe == mot_de_passe:
+                request.session['emailEleveur'] = email
                 return Response({
                     'message': 'Connexion réussie',
                     'email': eleveur.email,
@@ -282,10 +283,68 @@ class DernieresDonneesAPIView(APIView):
 def list_eleveur(request):
     if "emailAdmin" in request.session:
         eleveurs = Eleveur.objects.all()
-        serializer = EleveurSerializer(eleveurs, many=True)
-        return Response(serializer.data, status=200)
+        data = [
+            {
+                "id": eleveur.id,
+                "nom_complet": eleveur.nom_complet,
+                "email": eleveur.email,
+                "tel": eleveur.tel
+            }
+            for eleveur in eleveurs
+        ]
+        return JsonResponse(data, safe=False, status=200)
     else:
-        return Response({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+        return JsonResponse({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+
+
+#  afficher les informations d'un éleveur
+@api_view(['GET'])
+def detail_eleveur(request, id):
+    if "emailEleveur" in request.session:
+        eleveur = get_object_or_404(Eleveur, id=id)
+        data = {
+            "nom_complet": eleveur.nom_complet,
+            "email": eleveur.email,
+            "tel": eleveur.tel
+        }
+        return JsonResponse(data, safe=False, status=200)
+    else:
+        return JsonResponse({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+
+
+# afficher infos boeuf
+@api_view(['GET'])
+def detail_boeuf(request, id):
+    if "emailEleveur" in request.session:
+        boeuf = get_object_or_404(Boeuf, id=id)
+        data = {
+            "nom": boeuf.nom,
+            "date_naissance": boeuf.date_naissance.strftime("%Y-%m-%d"),
+            "sexe": boeuf.sexe,
+            "eleveur": {
+                "nom_complet": boeuf.eleveur.nom_complet,
+                "email": boeuf.eleveur.email,
+                "tel": boeuf.eleveur.tel
+            }
+        }
+        return JsonResponse(data, safe=False, status=200)
+    else:
+        return JsonResponse({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+
+
+# afficher infos admin
+@api_view(['GET'])
+def detail_admin(request, id):
+    if "emailAdmin" in request.session:
+        admin = get_object_or_404(Administrateur)
+        data = {
+            "nom": admin.nom,
+            "mail_admin": admin.mail_admin,
+           
+        }  
+        return JsonResponse(data, safe=False, status=200)
+    else:
+        return JsonResponse({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
 
 
 #lister les boeufs
@@ -293,19 +352,92 @@ def list_eleveur(request):
 def list_boeuf(request):
     if "emailAdmin" in request.session:
         boeufs = Boeuf.objects.all()
-        serializer = BoeufSerializer(boeufs, many=True)
-        return Response(serializer.data, status=200)
+        data = [
+            {
+                "id": boeuf.id,
+                "id_boeuf": boeuf.id_boeuf,  # UUID ou identifiant unique
+                "nom": boeuf.nom,
+                "date_naissance": boeuf.date_naissance.strftime("%Y-%m-%d"),
+                "sexe": boeuf.sexe,
+                "eleveur": {
+                    "id": boeuf.eleveur.id,
+                    "nom_complet": boeuf.eleveur.nom_complet,
+                    "email": boeuf.eleveur.email,
+                    "tel": boeuf.eleveur.tel
+                }
+            }
+            for boeuf in boeufs
+        ]
+        return JsonResponse(data, safe=False, status=200)
     else:
-        return Response({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+        return JsonResponse({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
 
 
-#lister donner boeufs
-# API pour lister les données bœufs
+#lister donnees boeuf
 @api_view(['GET'])
 def list_donnees_boeuf(request):
     if "emailAdmin" in request.session:
         donnees_boeufs = DonneeBoeuf.objects.all()
-        serializer = DonneeBoeufSerializer(donnees_boeufs, many=True)
-        return Response(serializer.data, status=200)
+        data = [
+            {
+                "id": donnee.id,
+                "boeuf": {
+                    "id_boeuf": donnee.boeuf.id_boeuf,
+                    "nom": donnee.boeuf.nom,
+                    "date_naissance": donnee.boeuf.date_naissance.strftime("%Y-%m-%d"),
+                    "sexe": donnee.boeuf.sexe,
+                    "eleveur": {
+                        "id": donnee.boeuf.eleveur.id,
+                        "nom_complet": donnee.boeuf.eleveur.nom_complet,
+                        "email": donnee.boeuf.eleveur.email,
+                        "tel": donnee.boeuf.eleveur.tel,
+                    },
+                },
+                "timestamp": donnee.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                "humidite": float(donnee.humidite),
+                "temp_interne": float(donnee.temp_interne),
+                "mvt_detecte": donnee.mvt_detecte,
+                "position": donnee.position,
+            }
+            for donnee in donnees_boeufs
+        ]
+        return JsonResponse(data, safe=False, status=200)
     else:
-        return Response({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+        return JsonResponse({'message': 'Non autorisé. Veuillez vous connecter.'}, status=403)
+
+
+#création de boeuf
+@api_view(['POST'])
+def creer_boeuf(request):
+    # Vérifier si l'éleveur est connecté via la session
+    if "emailEleveur" not in request.session:
+        return JsonResponse({"message": "Vous devez être connecté en tant qu'éleveur pour créer un boeuf."}, status=403)
+
+    email_eleveur = request.session["emailEleveur"]
+
+    # Récupérer l'éleveur correspondant à l'email stocké dans la session
+    try:
+        eleveur = Eleveur.objects.get(email=email_eleveur)
+    except Eleveur.DoesNotExist:
+        return JsonResponse({"message": "Éleveur non trouvé."}, status=404)
+
+    # Extraire les données de la requête
+    nom = request.data.get("nom")
+    date_naissance = request.data.get("date_naissance")
+    sexe = request.data.get("sexe")
+
+    # Valider les données
+    if not nom or not date_naissance or not sexe:
+        return JsonResponse({"message": "Tous les champs sont obligatoires."}, status=400)
+
+    # Créer un nouvel objet Boeuf
+    boeuf = Boeuf(
+        id_boeuf=uuid4(),
+        nom=nom,
+        date_naissance=date_naissance,
+        sexe=sexe,
+        eleveur=eleveur
+    )
+    boeuf.save()
+
+    return JsonResponse({"message": "Bœuf créé avec succès !"}, status=201)
