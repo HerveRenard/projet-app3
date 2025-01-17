@@ -1,0 +1,186 @@
+{
+    "Eleveur": {
+        "name": "Eleveur",
+        "fields": {
+            "boeufs": {
+                "type": "ForeignKey",
+                "null": true,
+                "related_model": "Boeuf"
+            },
+            "id": {
+                "type": "BigAutoField",
+                "null": false,
+                "blank": true,
+                "default": null
+            },
+            "nom_complet": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "email": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "tel": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "mot_de_passe": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": "password123"
+            }
+        }
+    },
+    "Boeuf": {
+        "name": "Boeuf",
+        "fields": {
+            "donnees": {
+                "type": "ForeignKey",
+                "null": true,
+                "related_model": "DonneeBoeuf"
+            },
+            "id_boeuf": {
+                "type": "UUIDField",
+                "null": false,
+                "blank": false,
+                "default": "Callable default (function)"
+            },
+            "nom": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "date_naissance": {
+                "type": "DateField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "sexe": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "eleveur": {
+                "type": "ForeignKey",
+                "null": false,
+                "blank": false,
+                "related_model": "Eleveur"
+            }
+        }
+    },
+    "DonneeBoeuf": {
+        "name": "DonneeBoeuf",
+        "fields": {
+            "id": {
+                "type": "BigAutoField",
+                "null": false,
+                "blank": true,
+                "default": null
+            },
+            "boeuf": {
+                "type": "ForeignKey",
+                "null": false,
+                "blank": false,
+                "related_model": "Boeuf"
+            },
+            "timestamp": {
+                "type": "DateTimeField",
+                "null": false,
+                "blank": true,
+                "default": null
+            },
+            "humidite": {
+                "type": "DecimalField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "temp_interne": {
+                "type": "DecimalField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "mvt_detecte": {
+                "type": "BooleanField",
+                "null": false,
+                "blank": false,
+                "default": false
+            },
+            "position": {
+                "type": "JSONField",
+                "null": false,
+                "blank": false,
+                "default": null
+            }
+        }
+    },
+    "Administrateur": {
+        "name": "Administrateur",
+        "fields": {
+            "codeconnexionadmin": {
+                "type": "ForeignKey",
+                "null": true,
+                "related_model": "CodeConnexionAdmin"
+            },
+            "id": {
+                "type": "BigAutoField",
+                "null": false,
+                "blank": true,
+                "default": null
+            },
+            "nom": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "mail_admin": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            },
+            "mot_de_passe": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": "password123"
+            }
+        }
+    },
+    "CodeConnexionAdmin": {
+        "name": "CodeConnexionAdmin",
+        "fields": {
+            "id": {
+                "type": "BigAutoField",
+                "null": false,
+                "blank": true,
+                "default": null
+            },
+            "admin": {
+                "type": "ForeignKey",
+                "null": true,
+                "blank": true,
+                "related_model": "Administrateur"
+            },
+            "code": {
+                "type": "CharField",
+                "null": false,
+                "blank": false,
+                "default": null
+            }
+        }
+    }
+}
